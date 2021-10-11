@@ -76,7 +76,7 @@ namespace FileReader.UnitTests
         }
 
         [Test]
-        public void Using_Correct_Role_Should_Return_XmlDocument()
+        public void Using_Correct_Role_Should_Return_ContentString()
         {
             // Arrange
             var request = new FileReadRequest(testfilePath);
