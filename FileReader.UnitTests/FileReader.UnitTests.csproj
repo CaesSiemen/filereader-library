@@ -15,10 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mocks\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\FileReaderLibrary\FileReaderLibrary.csproj" />
   </ItemGroup>
 
