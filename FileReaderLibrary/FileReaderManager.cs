@@ -1,4 +1,5 @@
 ﻿using FileReaderLibrary.Encryption;
+using FileReaderLibrary.Permissions;
 using FileReaderLibrary.Reader;
 using System;
 using System.IO.Abstractions;
@@ -10,42 +11,36 @@ namespace FileReaderLibrary
     /// </summary>
     public static class FileReaderManager
     {
-        private static IFileReader fileReader = null;
-
+        private static FileReader fileReader = null;
+       
         /// <summary>
-        /// Initiates the default File Reader.
+        /// Override the filesystem used by the File Reader.
         /// </summary>
-        public static void Initiate()
+        /// <param name="fileSystem"></param>
+        public static void SetFileSystem(IFileSystem fileSystem)
         {
-            fileReader = new FileReader();
+            EnsureFileReaderExists();
+            fileReader.SetFileSystem(fileSystem);
+        }
+        
+        /// <summary>
+        /// Override the encryptionhandler used by the File Reader.
+        /// </summary>
+        /// <param name="encryptionHandler"></param>
+        public static void SetEncryptionHandler(IEncryptionHandler encryptionHandler)
+        {
+            EnsureFileReaderExists();
+            fileReader.SetEncryptionHandler(encryptionHandler);
         }
 
         /// <summary>
-        /// Initiates the File Reader with a specific IFileSystem implementation.
+        /// Override the permissionshandler used by the File Reader.
         /// </summary>
-        /// <param name="fileSystem">File system used by the File Reader.</param>
-        public static void Initiate(IFileSystem fileSystem)
+        /// <param name="permissionshandler"></param>
+        public static void SetPermissionsHandler(IPermissionsHandler permissionshandler)
         {
-            fileReader = new FileReader(fileSystem);
-        }
-
-        /// <summary>
-        /// Initiates the File Reader with a specific IEncryptionHandler implementation.
-        /// </summary>
-        /// <param name="encryptionHandler">EncryptionHandler used by the File Reader.</param>
-        public static void Initiate(IEncryptionHandler encryptionHandler)
-        {
-            fileReader = new FileReader(encryptionHandler);
-        }
-
-        /// <summary>
-        /// Initiates the File Reader with a specific IFileSystem implementation and a specific IEncryptionHandler implementation.
-        /// </summary>
-        /// <param name="fileSystem">File system used by the File Reader.</param>
-        /// <param name="encryptionHandler">EncryptionHandler used by the File Reader.</param>
-        public static void Initiate(IFileSystem fileSystem, IEncryptionHandler encryptionHandler)
-        {
-            fileReader = new FileReader(fileSystem, encryptionHandler);
+            EnsureFileReaderExists();
+            fileReader.SetPermissionsHandler(permissionshandler);
         }
 
         /// <summary>
@@ -54,12 +49,13 @@ namespace FileReaderLibrary
         /// <returns>The current File Reader.</returns>
         public static IFileReader RetrieveFileReader()
         {
-            if (fileReader is null)
-            {
-                throw new InvalidOperationException("File Reader has not been initiated.");
-            }
-
+            EnsureFileReaderExists();
             return fileReader;
+        }
+
+        private static void EnsureFileReaderExists()
+        {
+            if (fileReader is null) fileReader = new FileReader();
         }
     }
 }

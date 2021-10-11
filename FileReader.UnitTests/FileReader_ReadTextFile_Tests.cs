@@ -1,4 +1,5 @@
 using FileReaderLibrary;
+using FileReaderLibrary.Reader;
 using NUnit.Framework;
 using System;
 using System.IO.Abstractions.TestingHelpers;
@@ -19,17 +20,18 @@ namespace FileReader.UnitTests
             mockFileSystem.AddFile(testfilePath, new MockFileData(testfileContent));
             mockFileSystem.AddFile(testfileEcryptedPath, new MockFileData(testfileReverseContent));
 
-            FileReaderManager.Initiate(mockFileSystem);
+            FileReaderManager.SetFileSystem(mockFileSystem);
         }
 
         [Test]
         public void Reading_File_Should_Return_ContentString()
         {
             // Arrange
+            var request = new FileReadRequest(testfilePath);
             var fileReader = FileReaderManager.RetrieveFileReader();
 
             // Act
-            var result = fileReader.ReadTextFile(testfilePath);
+            var result = fileReader.ReadTextFile(request);
 
             // Assert
             Assert.AreEqual(result, testfileContent);
@@ -39,33 +41,34 @@ namespace FileReader.UnitTests
         public void Read_Unexisting_File_Should_Throw()
         {
             // Arrange
-            var filePath = @"C:\unexistingfile.txt";
-
+            var request = new FileReadRequest(@"C:\unexistingfile.txt");
             var fileReader = FileReaderManager.RetrieveFileReader();
 
             // Act + Assert
-            Assert.Throws<ArgumentException>(() => fileReader.ReadTextFile(filePath));
+            Assert.Throws<ArgumentException>(() => fileReader.ReadTextFile(request));
         }
 
         [Test]
         public void Reading_Wrong_FileType_Should_Throw()
         {
             // Arrange
-            var testfilePath = @"C:\textfile.anything";
+            var request = new FileReadRequest(@"C:\textfile.anything");
             var fileReader = FileReaderManager.RetrieveFileReader();
 
             // Act + Assert
-            Assert.Throws<ArgumentException>(() => fileReader.ReadXmlFile(testfilePath));
+            Assert.Throws<ArgumentException>(() => fileReader.ReadTextFile(request));
         }
 
         [Test]
         public void Reading_Encrypted_File_Should_Return_DecryptedFileContent()
         {
             // Arrange
+            var request = new FileReadRequest(testfileEcryptedPath);
+            request.UseEncryption = true;
             var fileReader = FileReaderManager.RetrieveFileReader();
 
             // Act
-            var result = fileReader.ReadTextFile(testfileEcryptedPath, true);
+            var result = fileReader.ReadTextFile(request);
 
             // Assert
             Assert.AreEqual(result, testfileContent);

@@ -1,5 +1,6 @@
 ﻿using FileReaderLibrary.Encryption;
 using FileReaderLibrary.Extensions;
+using FileReaderLibrary.Permissions;
 using System;
 using System.IO;
 using System.IO.Abstractions;
@@ -10,43 +11,61 @@ namespace FileReaderLibrary.Reader
 {
     internal class FileReader : IFileReader
     {
-        private readonly IFileSystem fileSystem;
-        private readonly IEncryptionHandler encryptionHandler;
+        private IFileSystem fileSystem;
+        private IEncryptionHandler encryptionHandler;
+        private IPermissionsHandler permissionsHandler;
 
-        public FileReader() : this(new FileSystem(), new DefaultEncryptionHandler()) { }
+        internal FileReader() : this(new FileSystem(), new DefaultEncryptionHandler(), new DefaultPermissionHandler()) { }
 
-        public FileReader(IFileSystem fileSystem) : this(fileSystem, new DefaultEncryptionHandler()) { }
-
-        public FileReader(IEncryptionHandler encryptionHandler) : this(new FileSystem(), encryptionHandler) { }
-
-        public FileReader(IFileSystem fileSystem, IEncryptionHandler encryptionHandler)
+        internal FileReader(IFileSystem fileSystem, IEncryptionHandler encryptionHandler, IPermissionsHandler permissionsHandler)
         {
             this.fileSystem = fileSystem;
             this.encryptionHandler = encryptionHandler;
+            this.permissionsHandler = permissionsHandler;
         }
 
-        public string ReadTextFile(string fileName, bool isEncrypted = false)
+        internal void SetFileSystem(IFileSystem fileSystem)
         {
-            if (!IsFileTypeCorrect(FileType.Text, fileName))
+            this.fileSystem = fileSystem;
+        }
+
+        internal void SetEncryptionHandler(IEncryptionHandler encryptionHandler)
+        {
+            this.encryptionHandler = encryptionHandler;
+        }
+
+        internal void SetPermissionsHandler(IPermissionsHandler permissionsHandler)
+        {
+            this.permissionsHandler = permissionsHandler;
+        }
+
+        public string ReadTextFile(FileReadRequest request)
+        {
+            if (!IsFileTypeCorrect(FileType.Text, request.FilePath))
             {
                 throw new ArgumentException("The provided file should be a text file.");
             }
 
-            return this.ReadFile(fileName, isEncrypted);
+            return this.ReadFile(request.FilePath, request.UseEncryption);
         }
 
-        public XmlDocument ReadXmlFile(string fileName)
+        public XmlDocument ReadXmlFile(FileReadRequest request)
         {
-            if (!IsFileTypeCorrect(FileType.Xml, fileName))
+            if (!IsFileTypeCorrect(FileType.Xml, request.FilePath))
             {
                 throw new ArgumentException("The provided file should be an xml file.");
             }
 
-            var fileContent = this.ReadFile(fileName);
+            if(request.UsePermissions && !permissionsHandler.HasReadPermission(request.RoleName))
+            {
+                throw new UnauthorizedAccessException("Unauthorized to read this file.");
+            }
+
+            var fileContent = this.ReadFile(request.FilePath);
 
             XmlDocument doc = new XmlDocument();
-
             doc.LoadXml(fileContent);
+
             return doc;
         }
 
