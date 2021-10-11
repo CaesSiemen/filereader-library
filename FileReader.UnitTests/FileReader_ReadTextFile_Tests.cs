@@ -74,5 +74,50 @@ namespace FileReader.UnitTests
             // Assert
             Assert.AreEqual(result, testfileContent);
         }
+
+        [Test]
+        public void Using_Correct_Role_Should_Return_ContentString()
+        {
+            // Arrange
+            var request = new FileReadRequest(testfilePath);
+            request.UsePermissions = true;
+            request.RoleName = "ADMIN";
+
+            var fileReader = FileReaderManager.RetrieveFileReader();
+
+            // Act
+            var result = fileReader.ReadTextFile(request);
+
+            // Assert
+            Assert.AreEqual(result, testfileContent);
+        }
+
+        [Test]
+        public void Using_InCorrect_Role_Should_Throw()
+        {
+            // Arrange
+            var request = new FileReadRequest(testfilePath);
+            request.UsePermissions = true;
+            request.RoleName = "TEMPORARY";
+
+            var fileReader = FileReaderManager.RetrieveFileReader();
+
+            // Act + Assert
+            Assert.Throws<UnauthorizedAccessException>(() => fileReader.ReadTextFile(request));
+        }
+
+        [Test]
+        public void Using_No_Role_Should_Throw()
+        {
+            // Arrange
+            var request = new FileReadRequest(testfilePath);
+            request.UsePermissions = true;
+            request.RoleName = string.Empty;
+
+            var fileReader = FileReaderManager.RetrieveFileReader();
+
+            // Act + Assert
+            Assert.Throws<UnauthorizedAccessException>(() => fileReader.ReadTextFile(request));
+        }
     }
 }
