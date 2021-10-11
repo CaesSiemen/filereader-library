@@ -13,7 +13,7 @@ namespace FileReaderLibrary.Debugger
             //Console.WriteLine(fileReader.ReadTextFile(fileLocation));
 
 
-            Console.WriteLine(fileReader.ReadXmlFile(@"C:\Users\Siemen Caes\source\repos\FileReader\Testing\xmltest.xml").InnerXml);
+            //Console.WriteLine(fileReader.ReadXmlFile(@"C:\Users\Siemen Caes\source\repos\FileReader\Testing\xmltest.xml").InnerXml);
 
         }
     }
