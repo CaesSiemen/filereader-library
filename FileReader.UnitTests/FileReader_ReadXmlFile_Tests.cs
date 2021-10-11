@@ -10,7 +10,7 @@ namespace FileReader.UnitTests
     public class FileReader_ReadXmlFile_Tests
     {
         private readonly string testfilePath = @"C:\xmlfile.xml";
-        private readonly string testfileEcryptedPath = @"C:\encryptedtextfile.txt";
+        private readonly string testfileEcryptedPath = @"C:\encryptedxmlfile.xml";
         private readonly string testFileContent = @"<test><firstline>line 1</firstline><secondline>line 2</secondline><thirdline>line 3</thirdline></test>";
         private readonly string testfileReverseContent = ">tset/<>enildriht/<3 enil>enildriht<>enildnoces/<2 enil>enildnoces<>eniltsrif/<1 enil>eniltsrif<>tset<";
 
@@ -120,11 +120,14 @@ namespace FileReader.UnitTests
             request.UseEncryption = true;
             var fileReader = FileReaderManager.RetrieveFileReader();
 
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(testFileContent);
+
             // Act
-            var result = fileReader.ReadTextFile(request);
+            var result = fileReader.ReadXmlFile(request);
 
             // Assert
-            Assert.AreEqual(result, testFileContent);
+            Assert.AreEqual(xmlDocument.DocumentElement.InnerText, result.DocumentElement.InnerText);
         }
     }
 }
