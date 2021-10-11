@@ -94,9 +94,6 @@ namespace FileReader.UnitTests
 
             var fileReader = FileReaderManager.RetrieveFileReader();
 
-            var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(testFileContent);
-
             // Act + Assert
             Assert.Throws<UnauthorizedAccessException>(() => fileReader.ReadXmlFile(request));
         }
@@ -110,9 +107,6 @@ namespace FileReader.UnitTests
             request.RoleName = string.Empty;
 
             var fileReader = FileReaderManager.RetrieveFileReader();
-
-            var xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(testFileContent);
 
             // Act + Assert
             Assert.Throws<UnauthorizedAccessException>(() => fileReader.ReadXmlFile(request));

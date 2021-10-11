@@ -46,6 +46,11 @@ namespace FileReaderLibrary.Reader
                 throw new ArgumentException("The provided file should be a text file.");
             }
 
+            if (request.UsePermissions && !permissionsHandler.HasReadPermission(request.RoleName))
+            {
+                throw new UnauthorizedAccessException("Unauthorized to read this file.");
+            }
+
             return this.ReadFile(request.FilePath, request.UseEncryption);
         }
 
