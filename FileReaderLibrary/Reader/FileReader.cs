@@ -61,7 +61,7 @@ namespace FileReaderLibrary.Reader
                 throw new UnauthorizedAccessException("Unauthorized to read this file.");
             }
 
-            var fileContent = this.ReadFile(request.FilePath);
+            var fileContent = this.ReadFile(request.FilePath, request.UseEncryption);
 
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(fileContent);

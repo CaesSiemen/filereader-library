@@ -9,16 +9,18 @@ namespace FileReader.UnitTests
 {
     public class FileReader_ReadXmlFile_Tests
     {
+        private readonly string testfilePath = @"C:\xmlfile.xml";
+        private readonly string testfileEcryptedPath = @"C:\encryptedtextfile.txt";
         private readonly string testFileContent = @"<test><firstline>line 1</firstline><secondline>line 2</secondline><thirdline>line 3</thirdline></test>";
+        private readonly string testfileReverseContent = ">tset/<>enildriht/<3 enil>enildriht<>enildnoces/<2 enil>enildnoces<>eniltsrif/<1 enil>eniltsrif<>tset<";
 
         [SetUp]
         public void Setup()
         {
-            var testfilePath = @"C:\xmlfile.xml";
-
             var mockFileSystem = new MockFileSystem();
             var mockFile = new MockFileData(testFileContent);
             mockFileSystem.AddFile(testfilePath, mockFile);
+            mockFileSystem.AddFile(testfileEcryptedPath, new MockFileData(testfileReverseContent));
 
             FileReaderManager.SetFileSystem(mockFileSystem);
         }
@@ -27,7 +29,7 @@ namespace FileReader.UnitTests
         public void Reading_XmlFile_Should_Return_XmlDocument()
         {
             // Arrange
-            var request = new FileReadRequest(@"C:\xmlfile.xml");
+            var request = new FileReadRequest(testfilePath);
             var fileReader = FileReaderManager.RetrieveFileReader();
 
             var xmlDocument = new XmlDocument();
@@ -66,7 +68,7 @@ namespace FileReader.UnitTests
         public void Using_Correct_Role_Should_Return_XmlDocument()
         {
             // Arrange
-            var request = new FileReadRequest(@"C:\xmlfile.xml");
+            var request = new FileReadRequest(testfilePath);
             request.UsePermissions = true;
             request.RoleName = "ADMIN";
 
@@ -86,7 +88,7 @@ namespace FileReader.UnitTests
         public void Using_InCorrect_Role_Should_Throw()
         {
             // Arrange
-            var request = new FileReadRequest(@"C:\xmlfile.xml");
+            var request = new FileReadRequest(testfilePath);
             request.UsePermissions = true;
             request.RoleName = "TEMPORARY";
 
@@ -103,7 +105,7 @@ namespace FileReader.UnitTests
         public void Using_No_Role_Should_Throw()
         {
             // Arrange
-            var request = new FileReadRequest(@"C:\xmlfile.xml");
+            var request = new FileReadRequest(testfilePath);
             request.UsePermissions = true;
             request.RoleName = string.Empty;
 
@@ -114,6 +116,21 @@ namespace FileReader.UnitTests
 
             // Act + Assert
             Assert.Throws<UnauthorizedAccessException>(() => fileReader.ReadXmlFile(request));
+        }
+
+        [Test]
+        public void Reading_Encrypted_File_Should_Return_DecryptedFileContent()
+        {
+            // Arrange
+            var request = new FileReadRequest(testfileEcryptedPath);
+            request.UseEncryption = true;
+            var fileReader = FileReaderManager.RetrieveFileReader();
+
+            // Act
+            var result = fileReader.ReadTextFile(request);
+
+            // Assert
+            Assert.AreEqual(result, testFileContent);
         }
     }
 }
