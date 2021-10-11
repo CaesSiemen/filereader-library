@@ -1,4 +1,5 @@
-﻿using FileReaderLibrary.Extensions;
+﻿using FileReaderLibrary.Encryption;
+using FileReaderLibrary.Extensions;
 using System;
 using System.IO;
 using System.IO.Abstractions;
@@ -10,22 +11,28 @@ namespace FileReaderLibrary.Reader
     internal class FileReader : IFileReader
     {
         private readonly IFileSystem fileSystem;
+        private readonly IEncryptionHandler encryptionHandler;
 
-        public FileReader() : this(new FileSystem()) { }
+        public FileReader() : this(new FileSystem(), new DefaultEncryptionHandler()) { }
 
-        public FileReader(IFileSystem fileSystem)
+        public FileReader(IFileSystem fileSystem) : this(fileSystem, new DefaultEncryptionHandler()) { }
+
+        public FileReader(IEncryptionHandler encryptionHandler) : this(new FileSystem(), encryptionHandler) { }
+
+        public FileReader(IFileSystem fileSystem, IEncryptionHandler encryptionHandler)
         {
             this.fileSystem = fileSystem;
+            this.encryptionHandler = encryptionHandler;
         }
 
-        public string ReadTextFile(string fileName)
+        public string ReadTextFile(string fileName, bool isEncrypted = false)
         {
             if (!IsFileTypeCorrect(FileType.Text, fileName))
             {
                 throw new ArgumentException("The provided file should be a text file.");
             }
 
-            return this.ReadFile(fileName);
+            return this.ReadFile(fileName, isEncrypted);
         }
 
         public XmlDocument ReadXmlFile(string fileName)
@@ -40,36 +47,35 @@ namespace FileReaderLibrary.Reader
             XmlDocument doc = new XmlDocument();
 
             doc.LoadXml(fileContent);
-            //using var stringWriter = new StringWriter();
-            //using var xmlTextWriter = new XmlTextWriter(stringWriter);
-
-            //doc.WriteTo(xmlTextWriter);
-
             return doc;
         }
 
-        private string ReadFile(string fileName)
+        private string ReadFile(string fileName, bool isEncrypted = false)
         {
             if (!fileSystem.File.Exists(fileName)) throw new ArgumentException("File not found.");
 
-            var fileContent = new StringBuilder();
-
+            var strBuilder = new StringBuilder();
             using (var streamReader = fileSystem.File.OpenText(fileName))
             {
                 var line = string.Empty;
 
                 while ((line = streamReader.ReadLine()) != null)
                 {
-                    fileContent.Append(line + '\n');
+                    strBuilder.Append(line + '\n');
                 }
             }
 
-            return fileContent.ToString().TrimEnd('\n');
+            var fileContent = strBuilder.ToString().TrimEnd('\n');
+
+            if (isEncrypted)
+                fileContent = this.encryptionHandler.DecryptFileContent(fileContent);
+
+            return fileContent;
         }
 
         private bool IsFileTypeCorrect(FileType fileType, string fileName)
         {
-            if (fileType.GetEnumMeberValue() == Path.GetExtension(fileName)) return true;
+            if (fileType.GetEnumMemberValue() == Path.GetExtension(fileName)) return true;
             return false;
         }
     }

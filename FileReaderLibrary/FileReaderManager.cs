@@ -1,4 +1,5 @@
-﻿using FileReaderLibrary.Reader;
+﻿using FileReaderLibrary.Encryption;
+using FileReaderLibrary.Reader;
 using System;
 using System.IO.Abstractions;
 
@@ -26,6 +27,25 @@ namespace FileReaderLibrary
         public static void Initiate(IFileSystem fileSystem)
         {
             fileReader = new FileReader(fileSystem);
+        }
+
+        /// <summary>
+        /// Initiates the File Reader with a specific IEncryptionHandler implementation.
+        /// </summary>
+        /// <param name="encryptionHandler">EncryptionHandler used by the File Reader.</param>
+        public static void Initiate(IEncryptionHandler encryptionHandler)
+        {
+            fileReader = new FileReader(encryptionHandler);
+        }
+
+        /// <summary>
+        /// Initiates the File Reader with a specific IFileSystem implementation and a specific IEncryptionHandler implementation.
+        /// </summary>
+        /// <param name="fileSystem">File system used by the File Reader.</param>
+        /// <param name="encryptionHandler">EncryptionHandler used by the File Reader.</param>
+        public static void Initiate(IFileSystem fileSystem, IEncryptionHandler encryptionHandler)
+        {
+            fileReader = new FileReader(fileSystem, encryptionHandler);
         }
 
         /// <summary>

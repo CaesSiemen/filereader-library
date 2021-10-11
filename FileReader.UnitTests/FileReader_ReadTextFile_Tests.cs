@@ -8,14 +8,16 @@ namespace FileReader.UnitTests
     public class FileReader_ReadTextFile_Tests
     {
         private readonly string testfilePath = @"C:\testfile.txt";
+        private readonly string testfileEcryptedPath = @"C:\encryptedtextfile.txt";
         private readonly string testfileContent = "test line 1\ntest line 2\test line 3\n test line 4";
+        private readonly string testfileReverseContent = "4 enil tset \n3 enil tse\t2 enil tset\n1 enil tset";
 
         [SetUp]
         public void Setup()
         {
             var mockFileSystem = new MockFileSystem();
-            var mockFile = new MockFileData(testfileContent);
-            mockFileSystem.AddFile(testfilePath, mockFile);
+            mockFileSystem.AddFile(testfilePath, new MockFileData(testfileContent));
+            mockFileSystem.AddFile(testfileEcryptedPath, new MockFileData(testfileReverseContent));
 
             FileReaderManager.Initiate(mockFileSystem);
         }
@@ -54,6 +56,19 @@ namespace FileReader.UnitTests
 
             // Act + Assert
             Assert.Throws<ArgumentException>(() => fileReader.ReadXmlFile(testfilePath));
+        }
+
+        [Test]
+        public void Reading_Encrypted_File_Should_Return_DecryptedFileContent()
+        {
+            // Arrange
+            var fileReader = FileReaderManager.RetrieveFileReader();
+
+            // Act
+            var result = fileReader.ReadTextFile(testfileEcryptedPath, true);
+
+            // Assert
+            Assert.AreEqual(result, testfileContent);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace FileReaderLibrary.Extensions
 {
     public static class EnumExtensions
     {
-        public static string GetEnumMeberValue<T>(this T value)
+        public static string GetEnumMemberValue<T>(this T value)
         {
             return typeof(T).GetTypeInfo()
                 .DeclaredMembers
