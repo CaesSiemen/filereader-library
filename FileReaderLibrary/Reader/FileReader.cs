@@ -14,7 +14,7 @@ namespace FileReaderLibrary.Reader
     internal class FileReader : IFileReader
     {
         private readonly List<FileType> encryptionSupportedFileTypes = new List<FileType>() { FileType.Text, FileType.Xml, FileType.Json };
-        private readonly List<FileType> securitySupportedFileTypes = new List<FileType>() { FileType.Text, FileType.Xml };
+        private readonly List<FileType> securitySupportedFileTypes = new List<FileType>() { FileType.Text, FileType.Xml, FileType.Json };
 
         private IFileSystem fileSystem;
         private IEncryptionHandler encryptionHandler;
@@ -52,7 +52,7 @@ namespace FileReaderLibrary.Reader
                 throw new ArgumentException("The provided file should be a text file.");
             }
 
-            if (request.UsePermissions && !permissionsHandler.HasReadPermission(request.RoleName))
+            if (IsSecuritySupported(FileType.Text, request) && !permissionsHandler.HasReadPermission(request.RoleName))
             {
                 throw new UnauthorizedAccessException("Unauthorized to read this file.");
             }
@@ -67,7 +67,7 @@ namespace FileReaderLibrary.Reader
                 throw new ArgumentException("The provided file should be an xml file.");
             }
 
-            if(request.UsePermissions && !permissionsHandler.HasReadPermission(request.RoleName))
+            if (IsSecuritySupported(FileType.Xml, request) && !permissionsHandler.HasReadPermission(request.RoleName))
             {
                 throw new UnauthorizedAccessException("Unauthorized to read this file.");
             }
@@ -82,6 +82,11 @@ namespace FileReaderLibrary.Reader
             if (!IsFileTypeCorrect(FileType.Json, request.FilePath))
             {
                 throw new ArgumentException("The provided file should be an xml file.");
+            }
+
+            if (IsSecuritySupported(FileType.Json, request) && !permissionsHandler.HasReadPermission(request.RoleName))
+            {
+                throw new UnauthorizedAccessException("Unauthorized to read this file.");
             }
 
             var fileContent = this.ExtractFileContent(request.FilePath, FileType.Json, request.UseEncryption);
