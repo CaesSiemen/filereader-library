@@ -14,7 +14,8 @@ namespace FileReaderLibrary.Debugger
 
             //Console.WriteLine(fileReader.ReadTextFile(fileLocation));
             //var stringcontent = ExtractFileContent(fileLocation);
-            //var t = JsonDocument.Parse(stringcontent);
+            //var s = DecryptFileContent(stringcontent);
+            //var t = JsonDocument.Parse(s);
             //Console.WriteLine(fileReader.ReadXmlFile(@"C:\Users\Siemen Caes\source\repos\FileReader\Testing\xmltest.xml").InnerXml);
 
         }

@@ -10,13 +10,19 @@ namespace FileReader.UnitTests
     public class FileReader_ReadJsonFile_Tests
     {
         private readonly string testfilePath = @"C:\jsonfile.json";
+        private readonly string testfileEcryptedPath = @"C:\encryptedjsonfile.json";
+        private readonly string testfileInvalidPath = @"C:\invalidjsonfile.json";
         private readonly string testfileContent = "{\n\"test\":{\n\"line1\":\"this is line 1\",\n\"line2\":\"this is line 2\"\n}\n}";
+        private readonly string testfileReverseContent = "}\n}\n\"2 enil si siht\":\"2enil\"\n,\"1 enil si siht\":\"1enil\"\n{:\"tset\"\n{";
+        private readonly string testfileInvalidContent = "invalid";
 
         [SetUp]
         public void Setup()
         {
             var mockFileSystem = new MockFileSystem();
             mockFileSystem.AddFile(testfilePath, new MockFileData(testfileContent));
+            mockFileSystem.AddFile(testfileEcryptedPath, new MockFileData(testfileReverseContent));
+            mockFileSystem.AddFile(testfileInvalidPath, new MockFileData(testfileInvalidContent));
 
             FileReaderManager.SetFileSystem(mockFileSystem);
         }
@@ -37,7 +43,7 @@ namespace FileReader.UnitTests
         }
 
         [Test]
-        public void Read_Unexisting_File_Should_Throw()
+        public void Reading_Unexisting_File_Should_Throw()
         {
             // Arrange
             var request = new FileReadRequest(@"C:\unexistingfile.json");
@@ -56,6 +62,33 @@ namespace FileReader.UnitTests
 
             // Act + Assert
             Assert.Throws<ArgumentException>(() => fileReader.ReadJsonFile(request));
+        }
+
+        [Test]
+        public void Reading_Encrypted_File_Should_Return_DecryptedFileContent()
+        {
+            // Arrange
+            var request = new FileReadRequest(testfileEcryptedPath);
+            request.UseEncryption = true;
+            var fileReader = FileReaderManager.RetrieveFileReader();
+
+            var jsonDocument = JsonDocument.Parse(testfileContent);
+            // Act
+            var result = fileReader.ReadJsonFile(request);
+
+            // Assert
+            Assert.AreEqual(result.RootElement.ToString(), jsonDocument.RootElement.ToString());
+        }
+
+        [Test]
+        public void Reading_Invalid_File_Should_Throw()
+        {
+            // Arrange
+            var request = new FileReadRequest(testfileInvalidPath);
+            var fileReader = FileReaderManager.RetrieveFileReader();
+
+            // Act + Assert
+            Assert.Throws<InvalidOperationException>(() => fileReader.ReadJsonFile(request));
         }
     }
 }

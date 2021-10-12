@@ -38,7 +38,7 @@ namespace FileReader.UnitTests
         }
 
         [Test]
-        public void Read_Unexisting_File_Should_Throw()
+        public void Reading_Unexisting_File_Should_Throw()
         {
             // Arrange
             var request = new FileReadRequest(@"C:\unexistingfile.txt");

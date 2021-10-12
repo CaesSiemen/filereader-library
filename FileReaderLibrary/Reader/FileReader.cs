@@ -13,7 +13,7 @@ namespace FileReaderLibrary.Reader
 {
     internal class FileReader : IFileReader
     {
-        private readonly List<FileType> encryptionSupportedFileTypes = new List<FileType>() { FileType.Text, FileType.Xml };
+        private readonly List<FileType> encryptionSupportedFileTypes = new List<FileType>() { FileType.Text, FileType.Xml, FileType.Json };
         private readonly List<FileType> securitySupportedFileTypes = new List<FileType>() { FileType.Text, FileType.Xml };
 
         private IFileSystem fileSystem;
@@ -84,7 +84,7 @@ namespace FileReaderLibrary.Reader
                 throw new ArgumentException("The provided file should be an xml file.");
             }
 
-            var fileContent = this.ExtractFileContent(request.FilePath, FileType.Json);
+            var fileContent = this.ExtractFileContent(request.FilePath, FileType.Json, request.UseEncryption);
 
             return (JsonDocument)this.ParseFileContent(FileType.Json, fileContent);
         }
@@ -105,7 +105,6 @@ namespace FileReaderLibrary.Reader
 
             return this.ParseFileContent(fileType, fileContent);
         }
-
 
         private string ExtractFileContent(string fileName, FileType fileType, bool isEncrypted = false)
         {
@@ -136,6 +135,10 @@ namespace FileReaderLibrary.Reader
             {
                 switch (fileType)
                 {
+                    case FileType.Text:
+                        {
+                            return fileContent;
+                        }
                     case FileType.Json:
                         {
                             return JsonDocument.Parse(fileContent);

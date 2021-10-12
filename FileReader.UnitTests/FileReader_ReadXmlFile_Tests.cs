@@ -11,8 +11,10 @@ namespace FileReader.UnitTests
     {
         private readonly string testfilePath = @"C:\xmlfile.xml";
         private readonly string testfileEcryptedPath = @"C:\encryptedxmlfile.xml";
+        private readonly string testfileInvalidPath = @"C:\invalidfile.xml";
         private readonly string testFileContent = @"<test><firstline>line 1</firstline><secondline>line 2</secondline><thirdline>line 3</thirdline></test>";
         private readonly string testfileReverseContent = ">tset/<>enildriht/<3 enil>enildriht<>enildnoces/<2 enil>enildnoces<>eniltsrif/<1 enil>eniltsrif<>tset<";
+        private readonly string testFileInvalidContent = "invalid";
 
         [SetUp]
         public void Setup()
@@ -21,6 +23,7 @@ namespace FileReader.UnitTests
             var mockFile = new MockFileData(testFileContent);
             mockFileSystem.AddFile(testfilePath, mockFile);
             mockFileSystem.AddFile(testfileEcryptedPath, new MockFileData(testfileReverseContent));
+            mockFileSystem.AddFile(testfileInvalidPath, new MockFileData(testFileInvalidContent));
 
             FileReaderManager.SetFileSystem(mockFileSystem);
         }
@@ -128,6 +131,17 @@ namespace FileReader.UnitTests
 
             // Assert
             Assert.AreEqual(xmlDocument.DocumentElement.InnerText, result.DocumentElement.InnerText);
+        }
+
+        [Test]
+        public void Reading_Invalid_File_Should_Throw()
+        {
+            // Arrange
+            var request = new FileReadRequest(testfileInvalidPath);
+            var fileReader = FileReaderManager.RetrieveFileReader();
+
+            // Act + Assert
+            Assert.Throws<InvalidOperationException>(() => fileReader.ReadXmlFile(request));
         }
     }
 }
