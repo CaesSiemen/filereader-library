@@ -13,9 +13,6 @@ namespace FileReaderLibrary.Reader
 {
     internal class FileReader : IFileReader
     {
-        private readonly List<FileType> encryptionSupportedFileTypes = new List<FileType>() { FileType.Text, FileType.Xml, FileType.Json };
-        private readonly List<FileType> securitySupportedFileTypes = new List<FileType>() { FileType.Text, FileType.Xml, FileType.Json };
-
         private IFileSystem fileSystem;
         private IEncryptionHandler encryptionHandler;
         private IPermissionsHandler permissionsHandler;
@@ -47,76 +44,77 @@ namespace FileReaderLibrary.Reader
 
         public string ReadTextFile(FileReadRequest request)
         {
-            if (!IsFileTypeCorrect(FileType.Text, request.FilePath))
+            if (!request.FileType.HasValue || request.FileType.Value != FileType.Text)
             {
                 throw new ArgumentException("The provided file should be a text file.");
             }
 
-            if (IsSecuritySupported(FileType.Text, request) && !permissionsHandler.HasReadPermission(request.RoleName))
+            if (request.IsSecuritySupported() && !permissionsHandler.HasReadPermission(request.RoleName))
             {
                 throw new UnauthorizedAccessException("Unauthorized to read this file.");
             }
 
-            return this.ExtractFileContent(request.FilePath, FileType.Text, request.UseEncryption);
+            return this.ExtractFileContent(request);
         }
 
         public XmlDocument ReadXmlFile(FileReadRequest request)
         {
-            if (!IsFileTypeCorrect(FileType.Xml, request.FilePath))
+            if (!request.FileType.HasValue || request.FileType.Value != FileType.Xml)
             {
                 throw new ArgumentException("The provided file should be an xml file.");
             }
 
-            if (IsSecuritySupported(FileType.Xml, request) && !permissionsHandler.HasReadPermission(request.RoleName))
+            if (request.IsSecuritySupported() && !permissionsHandler.HasReadPermission(request.RoleName))
             {
                 throw new UnauthorizedAccessException("Unauthorized to read this file.");
             }
 
-            var fileContent = this.ExtractFileContent(request.FilePath, FileType.Xml, request.UseEncryption);
+            var fileContent = this.ExtractFileContent(request);
 
-            return (XmlDocument)this.ParseFileContent(FileType.Xml, fileContent);
+            return (XmlDocument)this.ParseFileContent(request.FileType.Value, fileContent);
         }
 
         public JsonDocument ReadJsonFile(FileReadRequest request)
         {
-            if (!IsFileTypeCorrect(FileType.Json, request.FilePath))
+            if (!request.FileType.HasValue || request.FileType.Value != FileType.Json)
             {
-                throw new ArgumentException("The provided file should be an xml file.");
+                throw new ArgumentException("The provided file should be an json file.");
             }
 
-            if (IsSecuritySupported(FileType.Json, request) && !permissionsHandler.HasReadPermission(request.RoleName))
-            {
-                throw new UnauthorizedAccessException("Unauthorized to read this file.");
-            }
-
-            var fileContent = this.ExtractFileContent(request.FilePath, FileType.Json, request.UseEncryption);
-
-            return (JsonDocument)this.ParseFileContent(FileType.Json, fileContent);
-        }
-
-        public object ReadFile(FileType fileType, FileReadRequest request)
-        {
-            if (!IsFileTypeCorrect(fileType, request.FilePath))
-            {
-                throw new ArgumentException("The provided file should be an xml file.");
-            }
-
-            if (IsSecuritySupported(fileType, request) && !permissionsHandler.HasReadPermission(request.RoleName))
+            if (request.IsSecuritySupported() && !permissionsHandler.HasReadPermission(request.RoleName))
             {
                 throw new UnauthorizedAccessException("Unauthorized to read this file.");
             }
 
-            var fileContent = this.ExtractFileContent(request.FilePath, fileType, request.UseEncryption);
+            var fileContent = this.ExtractFileContent(request);
 
-            return this.ParseFileContent(fileType, fileContent);
+            return (JsonDocument)this.ParseFileContent(request.FileType.Value, fileContent);
         }
 
-        private string ExtractFileContent(string fileName, FileType fileType, bool isEncrypted = false)
+        public object ReadFile(FileReadRequest request)
         {
-            if (!fileSystem.File.Exists(fileName)) throw new ArgumentException("File not found.");
+            if (!request.FileType.HasValue)
+            {
+                throw new ArgumentException("The provided file type is not supported.");
+            }
+
+            if (request.IsSecuritySupported() && !permissionsHandler.HasReadPermission(request.RoleName))
+            {
+                throw new UnauthorizedAccessException("Unauthorized to read this file.");
+            }
+
+            var fileContent = this.ExtractFileContent(request);
+
+            return this.ParseFileContent(request.FileType.Value, fileContent);
+        }
+
+
+        private string ExtractFileContent(FileReadRequest request)
+        {
+            if (!fileSystem.File.Exists(request.FilePath)) throw new ArgumentException("File not found.");
 
             var strBuilder = new StringBuilder();
-            using (var streamReader = fileSystem.File.OpenText(fileName))
+            using (var streamReader = fileSystem.File.OpenText(request.FilePath))
             {
                 var line = string.Empty;
 
@@ -128,7 +126,7 @@ namespace FileReaderLibrary.Reader
 
             var fileContent = strBuilder.ToString().TrimEnd('\n');
 
-            if (IsEncryptionSupported(fileType, isEncrypted) is true)
+            if (request.IsEncryptionSupported())
                 fileContent = this.encryptionHandler.DecryptFileContent(fileContent);
 
             return fileContent;
@@ -165,26 +163,6 @@ namespace FileReaderLibrary.Reader
                 else
                     throw;
             }
-        }
-
-
-        private bool IsFileTypeCorrect(FileType fileType, string fileName)
-        {
-            if (fileType.GetEnumMemberValue() == Path.GetExtension(fileName)) return true;
-            return false;
-        }
-
-        private bool IsSecuritySupported(FileType fileType, FileReadRequest request)
-        {
-            if( securitySupportedFileTypes.Contains(fileType) == false || request.UsePermissions == false) return false;
-            return true;
-        }
-
-        private bool IsEncryptionSupported(FileType fileType, bool isEncrypted)
-        {
-            if (encryptionSupportedFileTypes.Contains(fileType) == false || isEncrypted == false) return false;
-
-            return true;
         }
     }
 }

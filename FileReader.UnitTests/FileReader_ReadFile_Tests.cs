@@ -35,7 +35,7 @@ namespace FileReader.UnitTests
             var fileReader = FileReaderManager.RetrieveFileReader();
 
             // Act
-            var result = fileReader.ReadFile(FileType.Text, request);
+            var result = fileReader.ReadFile(request);
 
             // Assert
             Assert.IsAssignableFrom(typeof(string), result);
@@ -49,7 +49,7 @@ namespace FileReader.UnitTests
             var fileReader = FileReaderManager.RetrieveFileReader();
 
             // Act
-            var result = fileReader.ReadFile(FileType.Json, request);
+            var result = fileReader.ReadFile(request);
 
             // Assert
             Assert.IsAssignableFrom(typeof(JsonDocument), result);
@@ -63,7 +63,7 @@ namespace FileReader.UnitTests
             var fileReader = FileReaderManager.RetrieveFileReader();
 
             // Act
-            var result = fileReader.ReadFile(FileType.Xml, request);
+            var result = fileReader.ReadFile(request);
 
             // Assert
             Assert.IsAssignableFrom(typeof(XmlDocument), result);

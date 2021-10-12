@@ -39,6 +39,6 @@ namespace FileReaderLibrary.Reader
         /// </summary>
         /// <param name="request">Filepath, use of Encryption, use of permissions, and a rolename if permissions are used.</param>
         /// <returns>Returns the contents as a JsonDocument.</returns>
-        object ReadFile(FileType fileType, FileReadRequest request);
+        object ReadFile(FileReadRequest request);
     }
 }
