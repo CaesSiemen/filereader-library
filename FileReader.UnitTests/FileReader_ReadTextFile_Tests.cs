@@ -3,7 +3,6 @@ using FileReaderLibrary.Reader;
 using NUnit.Framework;
 using System;
 using System.IO.Abstractions.TestingHelpers;
-using System.Xml;
 
 namespace FileReader.UnitTests
 {

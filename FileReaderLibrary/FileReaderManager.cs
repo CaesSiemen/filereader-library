@@ -1,7 +1,6 @@
 ﻿using FileReaderLibrary.Encryption;
 using FileReaderLibrary.Permissions;
 using FileReaderLibrary.Reader;
-using System;
 using System.IO.Abstractions;
 
 namespace FileReaderLibrary
@@ -12,7 +11,7 @@ namespace FileReaderLibrary
     public static class FileReaderManager
     {
         private static FileReader fileReader = null;
-       
+
         /// <summary>
         /// Override the filesystem used by the File Reader.
         /// </summary>
@@ -22,7 +21,7 @@ namespace FileReaderLibrary
             EnsureFileReaderExists();
             fileReader.SetFileSystem(fileSystem);
         }
-        
+
         /// <summary>
         /// Override the encryptionhandler used by the File Reader.
         /// </summary>

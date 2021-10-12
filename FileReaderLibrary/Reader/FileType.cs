@@ -2,12 +2,15 @@
 
 namespace FileReaderLibrary.Reader
 {
-    internal enum FileType
+    public enum FileType
     {
         [EnumMember(Value = ".txt")]
         Text,
 
         [EnumMember(Value = ".xml")]
-        Xml
+        Xml,
+
+        [EnumMember(Value = ".json")]
+        Json
     }
 }
