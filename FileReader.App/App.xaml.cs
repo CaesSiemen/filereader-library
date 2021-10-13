@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FileReader.App.Viewmodels;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -15,7 +16,11 @@ namespace FileReader.App
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            var viewmodel = new FileReaderViewmodel();
             var window = new MainWindow();
+
+            window.DataContext = viewmodel;
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.Show();
 
             base.OnStartup(e);

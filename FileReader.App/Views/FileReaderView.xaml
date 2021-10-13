@@ -1,0 +1,117 @@
+﻿<UserControl x:Class="FileReader.App.Views.FileReaderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FileReader.App.Views"
+             xmlns:viewmodel="clr-namespace:FileReader.App.Viewmodels"
+             xmlns:converters="clr-namespace:FileReader.App.Views.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Background="White">
+    <UserControl.Resources>
+        <viewmodel:FileReaderViewmodel x:Key="Viewmodel"/>
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisConv"/>
+    </UserControl.Resources>
+        <Grid
+            d:DataContext="{Binding Source={StaticResource Viewmodel}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="160"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>
+        </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+        <Label Grid.Row="0"
+                   Grid.Column="0"
+                   Content="Select a file: "
+               HorizontalAlignment="Left"
+               VerticalAlignment="Center">
+        </Label>
+        <Label Grid.Row="1"
+                   Grid.Column="0"
+                   Content="Select a filetype: "
+               HorizontalAlignment="Left"
+               VerticalAlignment="Center">
+        </Label>
+        <Label Grid.Row="4"
+                   Grid.Column="0"
+                   Content="Provide a role name: "
+               HorizontalAlignment="Left"
+               VerticalAlignment="Center"
+               Visibility="{Binding UseRoleBasedSecurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisConv}}">
+        </Label>
+        <TextBox Grid.Row="0" 
+                 Margin="5"
+                 Grid.Column="1"
+                 Grid.ColumnSpan="2"
+                 x:Name="FileName"
+                 Text="{Binding FilePath, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                 IsReadOnly="true">
+            </TextBox>
+            <Button Grid.Row="0"
+                Grid.Column="3"
+                Margin="5"
+                Content="Choose file"
+                Command="{Binding CommandChooseFile}">
+            </Button>
+            <ComboBox Grid.Row="1"
+                  Grid.Column="1"
+                  Margin="5"
+                  Grid.ColumnSpan="2"
+                  ItemsSource="{Binding AvailableFileTypes}"
+                  SelectedItem="{Binding SelectedFileType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            </ComboBox>
+            <CheckBox Grid.Row="2"
+                  Grid.Column="1"
+                  Margin="5"
+                  Content="Decrypt file"
+                  IsChecked="{Binding UseEncryption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            </CheckBox>
+            <CheckBox Grid.Row="3"
+                  Grid.Column="1"
+                  Margin="5"
+                  Content="Use role based security"
+                  IsChecked="{Binding UseRoleBasedSecurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            </CheckBox>
+            <TextBox Grid.Row="4"
+                 Grid.Column="1"
+                     Grid.ColumnSpan="2"
+                 Margin="5"
+                 Text="{Binding RoleName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 Visibility="{Binding UseRoleBasedSecurity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisConv}}">
+            </TextBox>
+            <Button Grid.Row="6"
+                Grid.Column="3"
+                Margin="5"
+                MinHeight="5"
+                Content="Read file"
+                Command="{Binding CommandReadFile}">
+            </Button>
+            <Button Grid.Row="6"
+                Grid.Column="0"
+                Margin="5" MinHeight="5"
+                Content="Clear input"
+                Command="{Binding CommandClearInput}">
+            </Button>
+
+            <Border BorderThickness="0.5"
+                BorderBrush="Black"
+                Margin="1"
+                Grid.Row="7"
+                Grid.Column="0"
+                    Grid.ColumnSpan="4">
+                <TextBlock Text="{Binding FileContent, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                           TextWrapping="Wrap">
+                </TextBlock>
+            </Border>
+        </Grid>
+    </UserControl>

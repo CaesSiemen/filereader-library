@@ -4,9 +4,19 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FileReader.App"
+        xmlns:controls="clr-namespace:FileReader.App.Views"
+        xmlns:viewmodels="clr-namespace:FileReader.App.Viewmodels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="{Binding Title, FallbackValue='File Reader'}" Height="450" Width="800">
+    <Window.Resources>
+        <ResourceDictionary>
+            <DataTemplate DataType="{x:Type viewmodels:FileReaderViewmodel}">
+                <controls:FileReaderView/>
+            </DataTemplate>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
-
+        <ContentPresenter
+            Content="{Binding}"/>
     </Grid>
 </Window>
