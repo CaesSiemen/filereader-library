@@ -1,7 +1,7 @@
 # filereader-library
 A file reader library used for reading multiple types of files.
 
-### Current version: version 10.0
+### Current version: version 11.0
 This version not only holds the library, there is also an example WPF application.
 
 ## Contents
